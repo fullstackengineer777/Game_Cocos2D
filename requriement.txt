@@ -1,0 +1,10 @@
+Hello guys I am talking with a client for a game project so I need to present a proof of concept to check their interest. The idea is like this we have the screen area where one can touch on a touch screen, this will count the touch on a counter but give no points… we need to have two circles as separate object that we can move or change size or even overlap, for these we also count the touch but one circle will give touch *2 points and the other will give touch * 5 points. So we have three counters and two point counts.
+I want to move the circles to screen area and se their size and the start the game that will do the counts… the game has two modes one is total touch e.x. When we go to 100 total touch it stops and show the score… or it has time e.x. In 5 min hour many touch and score we got.
+I remind that I might need to move circles one inside the other like target so wider circle will count the points on touch of his area but inside smaller circle when touch it will give the touch count and points, so no double touch when one circle is inside the other.
+
+No need to keep score in database or other or if we can do easy it will be ok…
+
+This is proof of concept of a larger game that if we get the project I will assign to the developer, please check my ratings for past job and just be serious… I will also have to get all source of the project as deliverable.
+This is a simple 2d three four nodes game that it should be max five six hours work! There is no need for design, white back and circles in light and a bit darker simple colour the text to one side of screen black a bit big.. that’s all!
+
+Thank you
