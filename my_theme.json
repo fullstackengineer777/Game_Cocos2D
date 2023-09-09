@@ -1,0 +1,14 @@
+{
+    "UILabel": {
+        "name": "montserrat",
+        "size": "72",
+        "bold": "0",
+        "italic": "0"
+    },
+    "UIButton": {
+        "font_size": 72
+    }
+
+   
+    
+}
