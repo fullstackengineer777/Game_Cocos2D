@@ -10,10 +10,12 @@ pygame.init()
 
 
 # Constants
-# WIDTH, HEIGHT = 1200, 800
-WIDTH, HEIGHT = 1800, 1000
-RED = (255, 0, 0)
-BLUE = (0, 0, 255)
+WIDTH, HEIGHT = 1200, 800
+# WIDTH, HEIGHT = 1800, 1000
+RED = (240, 7, 30)
+BLUE = (68, 118, 235)
+GREEN =  (53, 240, 24)
+LIGHT_RED = (250, 88, 7)
 CIRCLE_RADIUS1 = 100
 CIRCLE_RADIUS2 = 50
 INITIAL_RADIUS = 50
@@ -42,6 +44,10 @@ game_paused = False
 INITIAL_TIME = 10
 TOTOAL_TOUCHES = 100
 total_count = 0
+Point = {
+    "pos": (0,0),
+    "color": (0,0,0)
+}
 total_points = []
 countdown_time = INITIAL_TIME  # Change this to your desired countdown time
 countdown_complete = False
@@ -56,6 +62,9 @@ def is_inside_circle2(x, y):
     distance = pygame.math.Vector2(x - CIRCLE_CENTER2[0], y - CIRCLE_CENTER2[1]).length()
     return distance <= CIRCLE_RADIUS2
 
+def is_inside_circle3(pt1, pt2):
+    distance = pygame.math.Vector2(pt1[0] - pt2[0], pt1[1] - pt2[1]).length()
+    return distance <= 10
 # def update_score():
     # Display a message before starting the game
     # font = pygame.font.Font(None, 24)
@@ -94,14 +103,22 @@ slider2 = pygame_gui.elements.UIHorizontalSlider(relative_rect=slider_rect2, sta
 label_rect2 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 80, 200, 30)
 slider_label2 = pygame_gui.elements.UILabel(relative_rect=label_rect2, text="Blue Circle Radius:", manager=manager)
 
-slider_rect3 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 300, 200, 30)
+slider_rect3 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 280, 200, 30)
 slider3 = pygame_gui.elements.UIHorizontalSlider(relative_rect=slider_rect3, start_value=50, value_range=(1, 300), manager=manager)
-label_rect3 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 330, 200, 30)
+label_rect3 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 310, 200, 30)
 slider_label3 = pygame_gui.elements.UILabel(relative_rect=label_rect3, text="Set Time 0 ~ 5 min:", manager=manager)
-slider_rect4 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 300, 200, 30)
-slider4 = pygame_gui.elements.UIHorizontalSlider(relative_rect=slider_rect4, start_value=50, value_range=(1, 200), manager=manager)
-label_rect4 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 330, 200, 30)
+slider_rect4 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 280, 200, 30)
+slider4 = pygame_gui.elements.UIHorizontalSlider(relative_rect=slider_rect4, start_value=100, value_range=(1, 200), manager=manager)
+label_rect4 = pygame.Rect(WIDTH - 220, HEIGHT/2 - 310, 200, 30)
 slider_label4 = pygame_gui.elements.UILabel(relative_rect=label_rect4, text="Set Counter 0 ~ 200:", manager=manager)
+label_rect5 = pygame.Rect(WIDTH - 250, HEIGHT/2 - 380, 200, 30)
+slider_label5 = pygame_gui.elements.UILabel(relative_rect=label_rect5, text="Total Touches:", manager=manager)
+label_rect6 = pygame.Rect(WIDTH - 250, HEIGHT/2 - 350, 200, 30)
+slider_label6 = pygame_gui.elements.UILabel(relative_rect=label_rect6, text="Left Touches:", manager=manager)
+label_rect7 = pygame.Rect(WIDTH - 250, HEIGHT/2 - 380, 200, 30)
+slider_label7 = pygame_gui.elements.UILabel(relative_rect=label_rect7, text="Total Time:", manager=manager)
+label_rect8 = pygame.Rect(WIDTH - 250, HEIGHT/2 - 350, 200, 30)
+slider_label8 = pygame_gui.elements.UILabel(relative_rect=label_rect8, text="Left Time:", manager=manager)
 
 start_button_rect = pygame.Rect(WIDTH - 200, HEIGHT - 150, 150, 50)
 start_button = pygame_gui.elements.UIButton(relative_rect=start_button_rect, text="Start", manager=manager)
@@ -129,6 +146,10 @@ def start_mode_a():
     slider_label3.show()
     slider4.hide()
     slider_label4.hide()
+    slider_label5.hide()
+    slider_label6.hide()
+    slider_label7.show()
+    slider_label8.show()
     print("Set Time Mode Game")
 
 def start_mode_b():
@@ -140,17 +161,21 @@ def start_mode_b():
     slider_label3.hide()
     slider4.show()
     slider_label4.show()
+    slider_label5.show()
+    slider_label6.show()
+    slider_label7.hide()
+    slider_label8.hide()
     print("Set Total touch Mode Game")
 
 # Create buttons for the game modes
 mode_a_button = pygame_gui.elements.UIButton(
-    relative_rect=pygame.Rect((WIDTH - 220, HEIGHT/2 - 250), (200, 50)),
+    relative_rect=pygame.Rect((WIDTH - 220, HEIGHT/2 - 230), (200, 50)),
     text='Total Touch Mode',
     manager=manager
 )
 
 mode_b_button = pygame_gui.elements.UIButton(
-    relative_rect=pygame.Rect((WIDTH - 220, HEIGHT/2 - 250), (200, 50)),
+    relative_rect=pygame.Rect((WIDTH - 220, HEIGHT/2 - 230), (200, 50)),
     text='Time Mode',
     manager=manager
 )
@@ -296,8 +321,24 @@ def check_sum(center):
     global total_count
     total_count = total_count + 1
     print(f"total_count = {total_count}")
-    global total_points
-    total_points.append(center)
+
+    flag = False
+    neighbor_pt = {}
+    for pt in reversed(total_points):
+        if is_inside_circle3(pt["pos"], center):
+            if pt["color"] == GREEN:
+                total_points.append({"pos": center, "color": LIGHT_RED})
+                flag = True
+                break
+            else:
+                total_points.append({"pos": center, "color": GREEN})
+                flag = True
+                break
+        # else:
+        #     total_points.append({"pos": center, "color": GREEN})
+    if flag == False:
+        # global total_points
+        total_points.append({"pos": center, "color": GREEN})
     if( game_mode == True) and (TOTOAL_TOUCHES <= total_count):
         pause_game()
 
@@ -316,13 +357,13 @@ while running:
                     if CIRCLE_RADIUS1 > CIRCLE_RADIUS2:
                         circle_num = 2 
                         if game_started: 
-                            click_count2 += 4
+                            click_count2 += 1
                             print(f"Blue Circle Click Count: {click_count2}")
                             check_sum(event.pos)
                     else:
                         circle_num = 1
                         if game_started: 
-                            click_count1 += 9
+                            click_count1 += 1
                             print(f"Red Circle Click Count: {click_count1}")
                             check_sum(event.pos)
                 else:
@@ -330,18 +371,18 @@ while running:
                         dragging = True
                         circle_num = 1
                         if game_started: 
-                            click_count1 += 9
+                            click_count1 += 1
                             print(f"Red Circle Click Count: {click_count1}")
                             check_sum(event.pos)
                     if is_inside_circle2(x, y) :
                         dragging = True
                         circle_num = 2 
                         if game_started: 
-                            click_count2 += 4
+                            click_count2 += 1
                             print(f"Blue Circle Click Count: {click_count2}")
                             check_sum(event.pos)
                     if not is_inside_circle1(x,y) and not is_inside_circle2(x,y) and  game_started:
-                        click_count3 += 5
+                        click_count3 += 1
                         circle_num = 3
                         check_sum(event.pos)
                     # update_score()
@@ -350,9 +391,9 @@ while running:
                 dragging = False
                 # drawing = False
         elif event.type == pygame.MOUSEMOTION:
-            if dragging and circle_num == 1:
+            if dragging and circle_num == 1 and not game_started:
                 CIRCLE_CENTER1[0], CIRCLE_CENTER1[1] = event.pos
-            if dragging and circle_num == 2:
+            if dragging and circle_num == 2 and not game_started:
                 CIRCLE_CENTER2[0], CIRCLE_CENTER2[1] = event.pos
 
         manager.process_events(event)
@@ -368,9 +409,11 @@ while running:
         if event.type  == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             if event.ui_element == slider3:
                 countdown_time = int(slider3.get_current_value())
+                INITIAL_TIME = int(slider3.get_current_value())
         if event.type  == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
             if event.ui_element == slider4:
                 TOTOAL_TOUCHES = int(slider4.get_current_value())
+                INITIAL_TIME = int(slider4.get_current_value())
 
 
         if event.type == pygame_gui.UI_BUTTON_PRESSED:
@@ -406,7 +449,7 @@ while running:
     score_rect2 = text_score2.get_rect(center=(WIDTH - 50, HEIGHT/2 + 160))
     screen.blit(text_score2, score_rect2)
 
-    text_score3 = font.render(str(click_count3), True, (0, 255, 0))
+    text_score3 = font.render(str(click_count3), True, GREEN)
     score_rect3 = text_score3.get_rect(center=(WIDTH - 50, HEIGHT/2 + 220))
     screen.blit(text_score3, score_rect3)
 
@@ -416,8 +459,26 @@ while running:
 
 
     for pt in total_points:
-        pygame.draw.circle(screen, (0,255,0), pt, 5)
+        pygame.draw.circle(screen, pt["color"] , pt["pos"], 5)
+        # print(pt["color"])
         
+    if game_mode == False:
+        font1 = pygame.font.Font(None, 28)
+        text_total_score = font1.render(str(INITIAL_TIME // 60) + "m : " + str(INITIAL_TIME % 60) + "", True, (255,255,255))
+        score_rect1 = text_total_score.get_rect(center=(WIDTH - 50, HEIGHT/2 - 363))
+        screen.blit(text_total_score, score_rect1)
+        text_total_score = font1.render(str(countdown_time // 60) + "m : " + str(countdown_time % 60) + "", True, (255,255,255))
+        score_rect1 = text_total_score.get_rect(center=(WIDTH - 50, HEIGHT/2 - 334))
+        screen.blit(text_total_score, score_rect1)
+    else:
+        font1 = pygame.font.Font(None, 28)
+        text_total_score1 = font1.render(str(TOTOAL_TOUCHES ), True, (255,255,255))
+        score_rect1 = text_total_score1.get_rect(center=(WIDTH - 50, HEIGHT/2 - 363))
+        screen.blit(text_total_score1, score_rect1)
+        text_total_score2 = font1.render(str(TOTOAL_TOUCHES - total_count), True, (255,255,255))
+        score_rect2 = text_total_score2.get_rect(center=(WIDTH - 50, HEIGHT/2 - 334))
+        screen.blit(text_total_score2, score_rect2)
+
 
     if game_paused:
         # print(game_paused)
