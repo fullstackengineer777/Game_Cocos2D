@@ -2,4 +2,5 @@
 Python         Cocos2D        Desktop Application Game
 
 # build
-pyinstaller --onefile demo.py
+pyinstaller --onefile demo.py \
+0030 6932636016
